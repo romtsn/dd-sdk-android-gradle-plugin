@@ -5,7 +5,7 @@ kotlin20 = "2.0.21"
 kotlin21 = "2.1.21"
 kotlin22 = "2.2.20"
 kotlin23 = "2.3.20"
-kotlin24 = "2.4.0"
+kotlin24 = "2.4.20"
 kotlinComposePlugin = "2.1.21"
 json = "20231013"
 okHttp = "4.12.0"
@@ -51,9 +51,9 @@ mavenPublishPlugin = "0.37.0"
 buildConfig = "6.0.10"
 
 # Datadog
-datadogSdk = "3.13.1"
+datadogSdk = "3.14.0"
 datadogSdkSnapshot = "3.14.0-SNAPSHOT"
-datadogPluginGradle = "1.30.0"
+datadogPluginGradle = "1.31.0"
 
 # Kotlin Compiler Plugin
 kotlinCompilerTesting20 = "0.7.0"
