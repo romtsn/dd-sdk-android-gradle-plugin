@@ -14,8 +14,8 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
-import org.slf4j.LoggerFactory
 import java.util.LinkedList
+import java.util.Locale
 import java.util.Queue
 
 /**
@@ -60,8 +60,9 @@ abstract class CheckSdkDepsTask : DefaultTask() {
             project.configurations.firstOrNull { it.name == configurationName.get() }
 
         if (configuration == null) {
-            LOGGER.info(
+            logger.info(
                 CANNOT_FIND_CONFIGURATION_MESSAGE.format(
+                    Locale.US,
                     configurationName.get(),
                     variantName.get()
                 )
@@ -72,16 +73,16 @@ abstract class CheckSdkDepsTask : DefaultTask() {
         val resolvedConfiguration = configuration.resolvedConfiguration
 
         if (resolvedConfiguration.hasError()) {
-            val error = try {
+            val failure = try {
                 resolvedConfiguration.rethrowFailure()
-                throw IllegalStateException(
+                error(
                     "Expected to throw" +
                         " ${ResolveException::class.qualifiedName}, but this didn't happen"
                 )
             } catch (re: ResolveException) {
                 re
             }
-            LOGGER.warn("Couldn't resolve configuration ${configurationName.get()}", error)
+            logger.warn("Couldn't resolve configuration ${configurationName.get()}", failure)
             return
         }
 
@@ -91,12 +92,13 @@ abstract class CheckSdkDepsTask : DefaultTask() {
             when (sdkCheckLevel.get()) {
                 SdkCheckLevel.FAIL -> {
                     throw MissingSdkException(
-                        MISSING_DD_SDK_MESSAGE.format(variantName.get())
+                        MISSING_DD_SDK_MESSAGE.format(Locale.US, variantName.get())
                     )
                 }
                 SdkCheckLevel.WARN -> {
-                    LOGGER.warn(
+                    logger.warn(
                         MISSING_DD_SDK_MESSAGE.format(
+                            Locale.US,
                             variantName.get()
                         )
                     )
@@ -137,7 +139,5 @@ abstract class CheckSdkDepsTask : DefaultTask() {
         internal const val DD_SDK_V1_NAME = "dd-sdk-android"
         internal const val DD_SDK_V2_CORE_NAME = "dd-sdk-android-core"
         internal const val DD_SDK_GROUP = "com.datadoghq"
-
-        internal val LOGGER = LoggerFactory.getLogger("DdCheckSdkDepsTask")
     }
 }

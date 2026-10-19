@@ -4,6 +4,8 @@
  * Copyright 2020-Present Datadog, Inc.
  */
 
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+
 plugins {
     id("java-library")
     kotlin("jvm")
@@ -17,13 +19,12 @@ plugins {
 
     // Analysis tools
     id("ktlint")
-    id("com.github.ben-manes.versions")
+    alias(libs.plugins.detektGradlePlugin)
 
     // Tests
     id("org.jetbrains.kotlinx.kover")
 
     // Internal Generation
-    id("thirdPartyLicences")
     id("transitiveDependencies")
     id("compilerMetadata")
     id("datadogBuildConfig")
@@ -31,26 +32,28 @@ plugins {
 
 dependencies {
     implementation(project(":dd-sdk-android-gradle-plugin-kcp-common"))
+    compileOnly(kotlin("stdlib"))
     compileOnly(libs.kotlinCompilerEmbeddable21)
     compileOnly(libs.kotlinGradlePlugin21)
     compileOnly(libs.autoServiceAnnotation)
-    compileOnly(libs.kotlinReflect)
+    compileOnly(libs.kotlinReflect21)
     kapt(libs.autoService)
 
     testImplementation(testFixtures(project(":dd-sdk-android-gradle-plugin-kcp-common")))
     testImplementation(libs.kotlinCompilerEmbeddable21)
     testImplementation(libs.kotlinGradlePlugin21)
     testImplementation(libs.kotlinCompilerTesting21)
-}
-
-java {
-    targetCompatibility = JavaVersion.VERSION_17
+    testImplementation(libs.kotlinReflect21)
 }
 
 datadogBuildConfig {
-    applyKotlinConfig()
+    applyKotlinConfig(
+        languageVersion = KotlinVersion.KOTLIN_2_1,
+        apiVersion = KotlinVersion.KOTLIN_2_1,
+        coreLibrariesVersion = libs.versions.kotlin21.get()
+    )
     applyJunitConfig()
     applyJavadocConfig()
-    applyDependencyUpdateConfig()
     applyPublishingConfig("Module to support Datadog Compiler Plugin with kotlin 2.1.x")
+    applyDetektConfig()
 }

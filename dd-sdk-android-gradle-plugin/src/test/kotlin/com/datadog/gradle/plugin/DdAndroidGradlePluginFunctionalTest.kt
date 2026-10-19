@@ -6,7 +6,9 @@
 
 package com.datadog.gradle.plugin
 
+import com.datadog.gradle.plugin.internal.ElfSymbolsDetector
 import com.datadog.gradle.plugin.internal.utils.capitalizeChar
+import com.datadog.gradle.plugin.utils.ElfFileBuilder
 import com.datadog.gradle.plugin.utils.assertj.BuildResultAssert.Companion.assertThat
 import com.datadog.gradle.plugin.utils.forge.Configurator
 import com.datadog.gradle.plugin.utils.headHash
@@ -519,7 +521,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
 
         val buildIds = apks.map {
             it.readBuildId(BUILD_ID_FILE_PATH_APK)
-                .let { UUID.fromString(it) }
+                .let { buildId -> UUID.fromString(buildId) }
         }
 
         // all build IDs should be unique
@@ -566,7 +568,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
 
         val buildIds = bundles.map {
             it.readBuildId(BUILD_ID_FILE_PATH_AAB)
-                .let { UUID.fromString(it) }
+                .let { buildId -> UUID.fromString(buildId) }
         }
 
         // all build IDs should be unique
@@ -627,7 +629,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         // since there is no explicit dependency between assemble and upload tasks, Gradle may
         // optimize the execution and run them in parallel, ignoring the order in the command
         // line, so we do the explicit split
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val result = gradleRunner {
@@ -688,7 +690,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         // since there is no explicit dependency between assemble and upload tasks, Gradle may
         // optimize the execution and run them in parallel, ignoring the order in the command
         // line, so we do the explicit split
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val result = gradleRunner {
@@ -752,7 +754,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         // since there is no explicit dependency between assemble and upload tasks, Gradle may
         // optimize the execution and run them in parallel, ignoring the order in the command
         // line, so we do the explicit split
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val result = gradleRunner {
@@ -788,7 +790,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         // since there is no explicit dependency between assemble and upload tasks, Gradle may
         // optimize the execution and run them in parallel, ignoring the order in the command
         // line, so we do the explicit split
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val result = gradleRunner {
@@ -833,7 +835,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         // since there is no explicit dependency between assemble and upload tasks, Gradle may
         // optimize the execution and run them in parallel, ignoring the order in the command
         // line, so we do the explicit split
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val result = gradleRunner { withArguments(taskName, "--info", "-Pdd-emulate-upload-call") }
@@ -884,7 +886,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         val taskName = resolveMappingUploadTask(variant)
 
         // When
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val result = gradleRunner {
@@ -940,7 +942,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         val taskName = resolveMappingUploadTask(variant)
 
         // When
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val result = gradleRunner {
@@ -1005,7 +1007,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         val taskName = resolveMappingUploadTask(variant)
 
         // When
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val result = gradleRunner {
@@ -1247,7 +1249,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         // since there is no explicit dependency between assemble and upload tasks, Gradle may
         // optimize the execution and run them in parallel, ignoring the order in the command
         // line, so we do the explicit split
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val result = gradleRunner {
@@ -1305,7 +1307,14 @@ internal class DdAndroidGradlePluginFunctionalTest {
         )
 
         stubNativeFiles()
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+
+        val color = forge.anElementFrom(colors)
+        val version = forge.anElementFrom(versions)
+        val variant = "${version.lowercase()}$color"
+        val variantVersionName = version.lowercase()
+        val taskName = resolveNdkSymbolUploadTask(variant)
+
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val arch = forge.anElementFrom(NdkSymbolFileUploadTask.SUPPORTED_ARCHS).arch
@@ -1313,12 +1322,6 @@ internal class DdAndroidGradlePluginFunctionalTest {
         val customSoFile = File(customNdkDir, "libexpected.so")
         // Stubbing custom .so file that not present inside default build directories
         stubFile(customSoFile, "some_content")
-
-        val color = forge.anElementFrom(colors)
-        val version = forge.anElementFrom(versions)
-        val variant = "${version.lowercase()}$color"
-        val variantVersionName = version.lowercase()
-        val taskName = resolveNdkSymbolUploadTask(variant)
 
         val result = gradleRunner {
             withArguments(
@@ -1367,7 +1370,14 @@ internal class DdAndroidGradlePluginFunctionalTest {
         )
 
         stubNativeFiles()
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+
+        val color = forge.anElementFrom(colors)
+        val version = forge.anElementFrom(versions)
+        val variant = "${version.lowercase()}$color"
+        val variantVersionName = version.lowercase()
+        val taskName = resolveNdkSymbolUploadTask(variant)
+
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val arch = forge.anElementFrom(NdkSymbolFileUploadTask.SUPPORTED_ARCHS).arch
@@ -1375,12 +1385,6 @@ internal class DdAndroidGradlePluginFunctionalTest {
         val customSoFile = File(customNdkDir, "libexpected.so")
         // Stubbing custom .so file that not present inside default build directories
         stubFile(customSoFile, "some_content")
-
-        val color = forge.anElementFrom(colors)
-        val version = forge.anElementFrom(versions)
-        val variant = "${version.lowercase()}$color"
-        val variantVersionName = version.lowercase()
-        val taskName = resolveNdkSymbolUploadTask(variant)
 
         val result = gradleRunner {
             withArguments(
@@ -1423,7 +1427,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         val variant = "${version.lowercase()}$color"
         val taskName = resolveNdkSymbolUploadTask(variant)
 
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val result = gradleRunner {
@@ -1458,6 +1462,108 @@ internal class DdAndroidGradlePluginFunctionalTest {
         }
     }
 
+    @Test
+    fun `M upload only the variant native libraries W upload symbol file { all variants }`() {
+        // Given
+        // new Variant API is only used starting from AGP 8.4
+        buildVersionConfig = LATEST_VERSIONS_TEST_CONFIGURATION
+        stubGradlePropertiesFile(buildVersionConfig)
+        stubGradleBuildFromResourceFile(
+            "lib_module_build.gradle",
+            libModuleBuildGradleFile,
+            overwrite = true
+        )
+        stubGradleBuildFromResourceFile(
+            "native_gradle_files/build_with_native_and_datadog_dep.gradle",
+            appBuildGradleFile
+        )
+        stubNativeFiles()
+        // AGP builds a native configuration once and attributes it to a single representative variant, so
+        // uploading for every variant makes sure non-representative variants are covered as well
+        val uploadTaskNames = variants.map { resolveNdkSymbolUploadTask(it) }
+
+        gradleRunner { withArguments(":samples:app:assembleRelease") }
+            .build()
+
+        // When
+        val result = gradleRunner {
+            withArguments(
+                *uploadTaskNames.toTypedArray(),
+                "--info",
+                "-PDD_API_KEY=fakekey",
+                "-Pdd-emulate-upload-call"
+            )
+        }
+            .build()
+
+        // Then
+        val uploadedFilesPerTask = uploadedNdkSymbolFilesPerTask(result.output)
+        assertThat(uploadedFilesPerTask.keys).containsExactlyInAnyOrderElementsOf(uploadTaskNames)
+        uploadedFilesPerTask.forEach { (taskName, uploadedFiles) ->
+            val variantName = taskName.removePrefix("uploadNdkSymbolFiles").replaceFirstChar { it.lowercase() }
+            assertThat(uploadedFiles)
+                .describedAs("files uploaded by $taskName")
+                .hasSize(SUPPORTED_ABIS.size)
+                .allMatch { it.contains("/merged_native_libs/$variantName/") && it.endsWith("/libplaceholder.so") }
+        }
+    }
+
+    @Test
+    fun `M upload all the packaged native libraries with symbols W upload symbol file`(forge: Forge) {
+        // Given
+        // new Variant API is only used starting from AGP 8.4
+        buildVersionConfig = LATEST_VERSIONS_TEST_CONFIGURATION
+        stubGradlePropertiesFile(buildVersionConfig)
+        stubGradleBuildFromResourceFile(
+            "lib_module_build.gradle",
+            libModuleBuildGradleFile,
+            overwrite = true
+        )
+        stubGradleBuildFromResourceFile(
+            "native_gradle_files/build_with_native_and_prebuilt_libs.gradle",
+            appBuildGradleFile
+        )
+        stubNativeFiles()
+        val prebuiltLibsDir = File(appMainSrcDir, "jniLibs/arm64-v8a").apply { mkdirs() }
+        File(prebuiltLibsDir, "libprebuilt.so").writeBytes(ElfFileBuilder.build(ElfFileBuilder.UNSTRIPPED_SECTIONS))
+        File(prebuiltLibsDir, "libstripped.so").writeBytes(ElfFileBuilder.build(ElfFileBuilder.STRIPPED_SECTIONS))
+        File(prebuiltLibsDir, "libexcluded.so").writeBytes(ElfFileBuilder.build(ElfFileBuilder.UNSTRIPPED_SECTIONS))
+
+        val variant = "${forge.anElementFrom(versions).lowercase()}${forge.anElementFrom(colors)}"
+        val taskName = resolveNdkSymbolUploadTask(variant)
+
+        gradleRunner { withArguments(resolveAssembleTask(variant)) }
+            .build()
+
+        // When
+        val result = gradleRunner {
+            withArguments(
+                taskName,
+                "--info",
+                "-PDD_API_KEY=fakekey",
+                "-Pdd-emulate-upload-call"
+            )
+        }
+            .build()
+
+        // Then
+        val uploadedFiles = uploadedNdkSymbolFilesPerTask(result.output).getValue(taskName)
+        assertThat(uploadedFiles.map { File(it).name })
+            .containsExactlyInAnyOrderElementsOf(List(SUPPORTED_ABIS.size) { "libplaceholder.so" } + "libprebuilt.so")
+        assertThat(result).containsInOutput("libstripped.so has no symbols, ignoring it.")
+
+        // the libraries built by the app are detected with symbols before AGP strips them, and without after
+        val intermediatesDir = File(appRootDir, "build/intermediates")
+        val builtLibs = intermediatesDir.walkTopDown().filter { it.name == "libplaceholder.so" }.toList()
+        assertThat(builtLibs.filter { it.path.contains("/merged_native_libs/") })
+            .isNotEmpty
+            .allMatch { ElfSymbolsDetector.detect(it) == ElfSymbolsDetector.Result.HAS_SYMBOLS }
+        assertThat(builtLibs.filter { it.path.contains("/stripped_native_libs/") })
+            .isNotEmpty
+            .allMatch { ElfSymbolsDetector.detect(it) == ElfSymbolsDetector.Result.STRIPPED }
+    }
+
+    @Test
     fun `M try to upload the symbol file W upload { using a fake API_KEY, gzip disabled }`(forge: Forge) {
         // Given
         stubGradleBuildFromResourceFile(
@@ -1472,7 +1578,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         val variant = "${version.lowercase()}$color"
         val taskName = resolveNdkSymbolUploadTask(variant)
 
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val result = gradleRunner {
@@ -1481,6 +1587,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
                 "--info",
                 "--stacktrace",
                 "-PDD_API_KEY=fakekey",
+                "-Pdd-disable-gzip",
                 "-Pdd-emulate-upload-call"
             )
         }
@@ -1526,7 +1633,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
         val mappingUploadTaskName = resolveMappingUploadTask(variant)
 
         // When
-        gradleRunner { withArguments("--info", ":samples:app:assembleRelease") }
+        gradleRunner { withArguments("--info", resolveAssembleTask(variant)) }
             .build()
 
         val nativeResult = gradleRunner {
@@ -1587,9 +1694,31 @@ internal class DdAndroidGradlePluginFunctionalTest {
 
     // region Internal
 
+    private fun resolveAssembleTask(
+        variantName: String
+    ) = ":samples:app:assemble${variantName.replaceFirstChar { capitalizeChar(it) }}Release"
+
     private fun resolveMappingUploadTask(
         variantName: String
     ) = "uploadMapping${variantName.replaceFirstChar { capitalizeChar(it) }}Release"
+
+    private fun uploadedNdkSymbolFilesPerTask(output: String): Map<String, List<String>> {
+        val filesPerTask = mutableMapOf<String, MutableList<String>>()
+        var currentTask: String? = null
+        output.lines().forEach { line ->
+            if (line.startsWith("> Task ")) {
+                currentTask = line.removePrefix("> Task :samples:app:")
+                    .substringBefore(" ")
+                    .takeIf { it.startsWith("uploadNdkSymbolFiles") }
+                currentTask?.let { filesPerTask.getOrPut(it) { mutableListOf() } }
+            }
+            val task = currentTask
+            if (task != null && line.startsWith(NDK_SYMBOL_FILE_UPLOAD_LOG_PREFIX)) {
+                filesPerTask.getValue(task).add(line.removePrefix(NDK_SYMBOL_FILE_UPLOAD_LOG_PREFIX))
+            }
+        }
+        return filesPerTask
+    }
 
     private fun resolveNdkSymbolUploadTask(
         variantName: String
@@ -1609,8 +1738,8 @@ internal class DdAndroidGradlePluginFunctionalTest {
         javaClass.classLoader.getResource(resourceFilePath)?.file?.let {
             File(it).copyTo(gradleFile, overwrite)
             if (buildVersionConfig.agpVersion.split(".").first().toInt() >= 9) {
-                gradleFile.readText().let {
-                    gradleFile.writeText(it.replace("id(\"kotlin-android\")", ""))
+                gradleFile.readText().let { content ->
+                    gradleFile.writeText(content.replace("id(\"kotlin-android\")", ""))
                 }
             }
         }
@@ -1639,6 +1768,9 @@ internal class DdAndroidGradlePluginFunctionalTest {
                 buildVersionConfig.jvmTarget
             )
         )
+        buildVersionConfig.javaHome?.let {
+            gradlePropertiesFile.appendText("\norg.gradle.java.home=$it\n")
+        }
     }
 
     private fun gradleRunner(
@@ -1700,8 +1832,12 @@ internal class DdAndroidGradlePluginFunctionalTest {
             val buildToolsVersion: String,
             val targetSdkVersion: String,
             val kotlinVersion: String,
-            val jvmTarget: String
+            val jvmTarget: String,
+            // JDK used to run the Gradle build, null means the default JDK running the tests
+            val javaHome: String? = null
         )
+
+        private const val NDK_SYMBOL_FILE_UPLOAD_LOG_PREFIX = "Uploading ndk_symbol_file file: "
 
         val SUPPORTED_ABIS = mapOf(
             "armeabi-v7a" to "arm",
@@ -1769,7 +1905,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
                     agpVersion = agpVersion
                     // some AndroidX dependencies in recent SDK versions require compileSdk >= 33, so downgrading
                     datadogSdkDependency = targetSdkVersion >= 33 ?
-                       "com.datadoghq:dd-sdk-android-rum:3.14.1" : "com.datadoghq:dd-sdk-android:1.15.0"
+                       "com.datadoghq:dd-sdk-android-rum:3.15.0" : "com.datadoghq:dd-sdk-android:1.15.0"
                     jvmTarget = jvmTarget
                 }
                 repositories {
@@ -1849,7 +1985,9 @@ internal class DdAndroidGradlePluginFunctionalTest {
                 buildToolsVersion = "31.0.0",
                 targetSdkVersion = "31",
                 kotlinVersion = "1.7.20",
-                jvmTarget = JavaVersion.VERSION_17.toString()
+                jvmTarget = JavaVersion.VERSION_17.toString(),
+                // Gradle 8.0 cannot run on JDK 21+
+                javaHome = System.getProperty("dd.jdk17.home")
             ),
             LATEST_VERSIONS_TEST_CONFIGURATION
         )

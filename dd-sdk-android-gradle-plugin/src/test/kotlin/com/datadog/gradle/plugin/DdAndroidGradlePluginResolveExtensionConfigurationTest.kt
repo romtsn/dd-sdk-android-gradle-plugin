@@ -38,8 +38,10 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
         assertThat(config.checkProjectDependencies)
             .isEqualTo(fakeExtension.checkProjectDependencies)
         assertThat(config.mappingFilePath).isEqualTo(fakeExtension.mappingFilePath)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases)
             .isEqualTo(fakeExtension.mappingFilePackageAliases)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents)
             .isEqualTo(fakeExtension.mappingFileTrimIndents)
         assertThat(config.ignoreDatadogCiFileConfig)
@@ -67,8 +69,10 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
         assertThat(config.checkProjectDependencies)
             .isEqualTo(variantConfig.checkProjectDependencies)
         assertThat(config.mappingFilePath).isEqualTo(variantConfig.mappingFilePath)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases)
             .isEqualTo(variantConfig.mappingFilePackageAliases)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents)
             .isEqualTo(variantConfig.mappingFileTrimIndents)
         assertThat(config.ignoreDatadogCiFileConfig)
@@ -99,7 +103,9 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
         assertThat(config.checkProjectDependencies)
             .isEqualTo(fakeExtension.checkProjectDependencies)
         assertThat(config.mappingFilePath).isEqualTo(fakeExtension.mappingFilePath)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases).isEmpty()
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents).isFalse
         assertThat(config.ignoreDatadogCiFileConfig).isFalse
     }
@@ -128,7 +134,9 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
         assertThat(config.remoteRepositoryUrl).isEqualTo(fakeExtension.remoteRepositoryUrl)
         assertThat(config.checkProjectDependencies)
             .isEqualTo(fakeExtension.checkProjectDependencies)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases).isEmpty()
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents).isFalse
         assertThat(config.ignoreDatadogCiFileConfig).isFalse
     }
@@ -157,7 +165,9 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
         assertThat(config.remoteRepositoryUrl).isEqualTo(fakeExtension.remoteRepositoryUrl)
         assertThat(config.checkProjectDependencies)
             .isEqualTo(fakeExtension.checkProjectDependencies)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases).isEmpty()
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents).isFalse
         assertThat(config.ignoreDatadogCiFileConfig).isFalse
     }
@@ -176,6 +186,7 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
         whenever(mockVariant.buildTypeName) doReturn fakeBuildTypeName
         whenever(mockVariant.flavors) doReturn fakeFlavorNames
         val incompleteConfig = DdExtensionConfiguration().apply {
+            @Suppress("DEPRECATION")
             this.mappingFilePackageAliases = mappingFilePackageAliases
         }
         whenever(fakeExtension.variants.findByName(variantName)) doReturn incompleteConfig
@@ -191,8 +202,10 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
         assertThat(config.checkProjectDependencies)
             .isEqualTo(fakeExtension.checkProjectDependencies)
         assertThat(config.mappingFilePath).isEqualTo(fakeExtension.mappingFilePath)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases)
             .isEqualTo(mappingFilePackageAliases)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents).isFalse
         assertThat(config.ignoreDatadogCiFileConfig).isFalse
     }
@@ -206,6 +219,7 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
         whenever(mockVariant.buildTypeName) doReturn fakeBuildTypeName
         whenever(mockVariant.flavors) doReturn fakeFlavorNames
         val incompleteConfig = DdExtensionConfiguration().apply {
+            @Suppress("DEPRECATION")
             this.mappingFileTrimIndents = mappingFileTrimIndents
         }
         whenever(fakeExtension.variants.findByName(variantName)) doReturn incompleteConfig
@@ -221,8 +235,10 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
         assertThat(config.checkProjectDependencies)
             .isEqualTo(fakeExtension.checkProjectDependencies)
         assertThat(config.mappingFilePath).isEqualTo(fakeExtension.mappingFilePath)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases)
             .isEmpty()
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents)
             .isEqualTo(mappingFileTrimIndents)
         assertThat(config.ignoreDatadogCiFileConfig).isFalse
@@ -253,7 +269,9 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
         assertThat(config.checkProjectDependencies).isEqualTo(
             fakeExtension.checkProjectDependencies
         )
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases).isEmpty()
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents).isFalse
         assertThat(config.ignoreDatadogCiFileConfig).isFalse
     }
@@ -281,7 +299,9 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
         assertThat(config.mappingFilePath).isEqualTo(fakeExtension.mappingFilePath)
         assertThat(config.remoteRepositoryUrl).isEqualTo(fakeExtension.remoteRepositoryUrl)
         assertThat(config.checkProjectDependencies).isEqualTo(sdkCheckLevel)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases).isEmpty()
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents).isFalse
         assertThat(config.ignoreDatadogCiFileConfig).isFalse
     }
@@ -311,7 +331,9 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
             fakeExtension.checkProjectDependencies
         )
         assertThat(config.mappingFilePath).isEqualTo(fakeExtension.mappingFilePath)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases).isEmpty()
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents).isFalse
         assertThat(config.ignoreDatadogCiFileConfig).isFalse
     }
@@ -341,7 +363,9 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
             fakeExtension.checkProjectDependencies
         )
         assertThat(config.mappingFilePath).isEqualTo(fakeExtension.mappingFilePath)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases).isEmpty()
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents).isFalse
         assertThat(config.ignoreDatadogCiFileConfig)
             .isEqualTo(incompleteConfig.ignoreDatadogCiFileConfig)
@@ -366,7 +390,7 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
             serviceName = null
             checkProjectDependencies = null
         }
-        variantConfigC.apply { site = null }
+        variantConfigC.site = null
         whenever(mockVariant.buildTypeName) doReturn fakeBuildTypeName
         whenever(mockVariant.flavors) doReturn flavorNames
         whenever(fakeExtension.variants.findByName(flavorA)) doReturn variantConfigA
@@ -384,8 +408,10 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
             .isEqualTo(variantConfigC.checkProjectDependencies)
         assertThat(config.remoteRepositoryUrl).isEqualTo(variantConfigA.remoteRepositoryUrl)
         assertThat(config.mappingFilePath).isEqualTo(variantConfigA.mappingFilePath)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases)
             .isEqualTo(variantConfigA.mappingFilePackageAliases)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents)
             .isEqualTo(variantConfigA.mappingFileTrimIndents)
         assertThat(config.ignoreDatadogCiFileConfig)
@@ -403,10 +429,10 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
     ) {
         // Given
         val flavorNames = listOf(flavorA, flavorB, flavorC)
-        variantConfigAB.apply { versionName = null }
-        variantConfigAC.apply { serviceName = null }
-        variantConfigBC.apply { site = null }
-        variantConfigBC.apply { checkProjectDependencies = null }
+        variantConfigAB.versionName = null
+        variantConfigAC.serviceName = null
+        variantConfigBC.site = null
+        variantConfigBC.checkProjectDependencies = null
         whenever(mockVariant.buildTypeName) doReturn fakeBuildTypeName
         whenever(mockVariant.flavors) doReturn flavorNames
         whenever(
@@ -439,8 +465,10 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
             .isEqualTo(variantConfigAB.checkProjectDependencies)
         assertThat(config.remoteRepositoryUrl).isEqualTo(variantConfigAB.remoteRepositoryUrl)
         assertThat(config.mappingFilePath).isEqualTo(variantConfigAB.mappingFilePath)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases)
             .isEqualTo(variantConfigAB.mappingFilePackageAliases)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents)
             .isEqualTo(variantConfigAB.mappingFileTrimIndents)
         assertThat(config.ignoreDatadogCiFileConfig)
@@ -469,8 +497,10 @@ internal class DdAndroidGradlePluginResolveExtensionConfigurationTest : DdAndroi
             .isEqualTo(configuration.checkProjectDependencies)
         assertThat(config.remoteRepositoryUrl).isEqualTo(configuration.remoteRepositoryUrl)
         assertThat(config.mappingFilePath).isEqualTo(configuration.mappingFilePath)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFilePackageAliases)
             .isEqualTo(configuration.mappingFilePackageAliases)
+        @Suppress("DEPRECATION")
         assertThat(config.mappingFileTrimIndents)
             .isEqualTo(configuration.mappingFileTrimIndents)
         assertThat(config.ignoreDatadogCiFileConfig)

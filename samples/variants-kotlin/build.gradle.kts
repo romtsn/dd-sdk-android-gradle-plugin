@@ -7,7 +7,6 @@
 @file:Suppress("StringLiteralDuplication")
 
 import com.datadog.gradle.config.AndroidConfig
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
@@ -15,8 +14,11 @@ plugins {
     // when it is applied after the Kotlin plugin.
     id("ktlint")
     kotlin("android")
-    // you don't need this in your project, it is just to be able to reference AndroidConfig class
-    id("noopBuildConfigClasspath") apply false
+
+    // Analysis tools
+    alias(libs.plugins.detektGradlePlugin)
+
+    id("datadogBuildConfig")
 
 //    id("com.datadoghq.dd-sdk-android-gradle-plugin")
 }
@@ -84,15 +86,18 @@ android {
     }
 }
 
-kotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
-    }
+datadogBuildConfig {
+    applyKotlinConfig()
+    // Colours don't have dedicated sources, analyzing one variant per version flavor is enough
+    // (Detekt matches the combined flavor name of each variant)
+    applyDetektConfig(
+        ignoredFlavors = listOf("demoGreen", "demoBlue", "fullGreen", "fullBlue", "proGreen", "proBlue")
+    )
 }
 
 dependencies {
     implementation(project(":samples:lib-module"))
-    implementation(libs.kotlin)
+    implementation(libs.kotlinRuntime23)
 
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)

@@ -5,7 +5,6 @@
  */
 
 import com.datadog.gradle.config.AndroidConfig
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -16,7 +15,10 @@ plugins {
     kotlin("android")
     alias(libs.plugins.kotlinComposePlugin)
 
-    id("noopBuildConfigClasspath") apply false // just bringing classpath to reference AndroidConfig
+    // Analysis tools
+    alias(libs.plugins.detektGradlePlugin)
+
+    id("datadogBuildConfig")
 }
 
 android {
@@ -60,9 +62,13 @@ android {
     }
 }
 
+datadogBuildConfig {
+    applyKotlinConfig()
+    applyDetektConfig()
+}
+
 tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
         freeCompilerArgs.addAll(
             listOf(
                 "-P",

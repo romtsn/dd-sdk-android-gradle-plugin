@@ -4,10 +4,40 @@
  * Copyright 2020-Present Datadog, Inc.
  */
 
+import dev.detekt.gradle.Detekt
+
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.ktlintGradlePlugin)
-    alias(libs.plugins.versionsPluginGradle)
+    alias(libs.plugins.detektGradlePlugin)
+}
+
+detekt {
+    config.setFrom(file("../../detekt.yml"))
+    basePath = layout.projectDirectory.dir("../..")
+}
+
+tasks.withType<Detekt>().configureEach {
+    val buildDirectory = layout.buildDirectory
+    exclude { it.file.startsWith(buildDirectory.get().asFile) }
+    reports {
+        sarif.required = false
+        html.required = false
+        checkstyle.required = false
+        markdown.required = false
+    }
+}
+
+// Mirrors `applyDetektConfig`, which can't be used in the build script of this build:
+// sources are only analyzed with type resolution, so the plain task is just an umbrella
+tasks.named<Detekt>("detekt") {
+    enabled = false
+    dependsOn(tasks.named { it in setOf("detektMain", "detektTest") })
+}
+
+kotlin {
+    // Must be kept in sync with JDK_VERSION in com.datadog.gradle.config.KotlinConfig.
+    jvmToolchain(21)
 }
 
 ktlint {
@@ -43,28 +73,19 @@ repositories {
 dependencies {
 
     // Dependencies used to configure the Gradle plugins
-    compileOnly(libs.kotlinGradlePlugin21)
+    compileOnly(libs.kotlinGradlePluginApi)
     compileOnly(libs.ktlintGradlePlugin)
-    compileOnly(libs.versionsGradlePlugin)
+    compileOnly(libs.detektGradlePlugin)
     compileOnly(libs.dokkaGradlePlugin)
     compileOnly(libs.mavenPublishPlugin)
-    implementation(libs.fuzzyWuzzy)
 
     // Tests
-    testImplementation(libs.jUnit4)
-    testImplementation(libs.mockitoKotlin)
-    testImplementation(libs.elmyr.core)
-    testImplementation(libs.elmyr.inject)
-    testImplementation(libs.elmyr.jUnit4)
-    testImplementation(libs.elmyr.jvm)
+    testImplementation(libs.bundles.jUnit5)
+    testImplementation(libs.bundles.testTools)
 }
 
 gradlePlugin {
     plugins {
-        register("thirdPartyLicences") {
-            id = "thirdPartyLicences" // the alias
-            implementationClass = "com.datadog.gradle.plugin.checklicenses.ThirdPartyLicensesPlugin"
-        }
         register("transitiveDependencies") {
             id = "transitiveDependencies" // the alias
             implementationClass = "com.datadog.gradle.plugin.transdeps.TransitiveDependenciesPlugin"
@@ -81,5 +102,15 @@ gradlePlugin {
             id = "noopBuildConfigClasspath" // the alias
             implementationClass = "com.datadog.gradle.plugin.noop.BuildConfigClasspathPlugin"
         }
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform {
+        includeEngines("junit-jupiter")
+    }
+    reports {
+        junitXml.required.set(true)
+        html.required.set(true)
     }
 }

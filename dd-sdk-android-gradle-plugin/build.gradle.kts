@@ -5,6 +5,7 @@
  */
 
 import com.datadog.gradle.config.MavenConfig
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
     // Build
@@ -20,13 +21,12 @@ plugins {
 
     // Analysis tools
     id("ktlint")
-    id("com.github.ben-manes.versions")
+    alias(libs.plugins.detektGradlePlugin)
 
     // Tests
     id("org.jetbrains.kotlinx.kover")
 
     // Internal Generation
-    id("thirdPartyLicences")
     id("transitiveDependencies")
     id("compilerMetadata")
     id("datadogBuildConfig")
@@ -40,12 +40,12 @@ buildConfig {
 
 dependencies {
     // Main implementation dependencies
-    implementation(libs.kotlin21)
+    implementation(kotlin("stdlib"))
     implementation(libs.okHttp)
     implementation(libs.json)
     // Compile-only dependencies
     compileOnly(libs.androidToolsGradlePlugin) // for auto-wiring into Android projects
-    compileOnly(libs.kotlinGradlePlugin21)
+    compileOnly(libs.kotlinGradlePluginApi21)
 
     // Test dependencies
     testImplementation(libs.bundles.jUnit5)
@@ -56,11 +56,15 @@ dependencies {
 }
 
 datadogBuildConfig {
-    applyKotlinConfig()
+    applyKotlinConfig(
+        languageVersion = KotlinVersion.KOTLIN_2_1,
+        apiVersion = KotlinVersion.KOTLIN_2_1,
+        coreLibrariesVersion = libs.versions.kotlin21.get()
+    )
     applyJunitConfig()
     applyJavadocConfig()
-    applyDependencyUpdateConfig()
     applyPublishingConfig("Plugin to upload Proguard/R8 mapping files to Datadog.")
+    applyDetektConfig()
 }
 
 gradlePlugin {
@@ -80,10 +84,15 @@ gradlePlugin {
     }
 }
 
-java {
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
 tasks.withType<Test> {
     dependsOn("pluginUnderTestMetadata")
+    // Some Gradle versions used in functional tests (e.g. 8.0) cannot run on the toolchain JDK
+    @Suppress("MagicNumber")
+    val jdk17Launcher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(17) }
+    jvmArgumentProviders.add(
+        CommandLineArgumentProvider {
+            val jdk17Home = jdk17Launcher.get().metadata.installationPath.asFile.invariantSeparatorsPath
+            listOf("-Ddd.jdk17.home=$jdk17Home")
+        }
+    )
 }
