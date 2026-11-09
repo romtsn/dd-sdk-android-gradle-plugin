@@ -15,15 +15,16 @@ androidXComposeNavigation = "2.8.8"
 
 # Android
 androidToolsPlugin = "9.3.1"
+# Match the tools version used by androidToolsPlugin.
+androidToolsCommon = "32.3.1"
 
 # AndroidX
 androidx-core = "1.3.2"
 androidx-appcompat = "1.2.0"
 androidx-constraintlayout = "2.0.4"
 
-# JUnit 5
+# JUnit
 jUnit-jupiter = "6.1.2"
-jUnit-platform = "6.1.2"
 jUnit-mockitoExt = "5.23.0"
 
 # Tests Tools
@@ -32,21 +33,19 @@ elmyr = "1.3.1"
 mockitoKotlin = "6.3.0"
 
 # Tools
-detekt = "2.0.0-alpha.3"
+detekt = "2.0.0-alpha.6"
 dokka = "2.2.0"
-ktlint = "1.5.0"
+ktlint = "1.8.0"
 ktlintGradlePlugin = "14.2.0"
 kover = "0.9.8"
-unmock = "0.7.5"
 
 gradlePluginPublishPlugin = "2.1.1"
 mavenPublishPlugin = "0.37.0"
 buildConfig = "6.0.10"
-dependencyLicense="0.7.0"
+dependencyLicense="0.8.1"
 
 # Datadog
-datadogSdk = "3.16.0"
-datadogSdkSnapshot = "3.16.0-SNAPSHOT"
+datadogSdk = "latest.integration"
 datadogPluginGradle = "1.32.0"
 
 # Kotlin Compiler Plugin
@@ -54,7 +53,6 @@ kotlinCompilerTesting20 = "0.7.0"
 kotlinCompilerTesting21 = "0.7.0"
 kotlinCompilerTesting22 = "0.8.0"
 kotlinCompilerTesting24 = "0.12.1"
-autoService = "1.0.1"
 junitVersion = "1.2.1"
 espressoCoreVersion = "3.7.0"
 lifecycleRuntimeKtx = "2.8.7"
@@ -64,6 +62,7 @@ lifecycleRuntimeKtx = "2.8.7"
 # Classpaths
 # Gradle version catalog doesn't allow names to end with plugin, that is why strange names
 androidToolsGradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidToolsPlugin" }
+androidToolsCommon = { module = "com.android.tools:common", version.ref = "androidToolsCommon" }
 kotlinGradlePluginApi = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api", version.ref = "kotlinBuildscript" }
 kotlinGradlePlugin20 = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin20" }
 kotlinGradlePluginApi21 = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api", version.ref = "kotlin21" }
@@ -73,7 +72,6 @@ kotlinGradlePlugin24 = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", v
 dokkaGradlePlugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "dokka" }
 detektGradlePlugin = { module = "dev.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 ktlintGradlePlugin = { module = "org.jlleitschuh.gradle.ktlint:org.jlleitschuh.gradle.ktlint.gradle.plugin", version.ref = "ktlintGradlePlugin" }
-unmockGradlePlugin = { module = "de.mobilej.unmock:UnMockPlugin", version.ref = "unmock" }
 
 mavenPublishPlugin = { module = "com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin", version.ref = "mavenPublishPlugin" }
 
@@ -90,11 +88,11 @@ androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayo
 
 assertJ = { module = "org.assertj:assertj-core", version.ref = "assertJ" }
 
-# JUnit 5
-jUnit-platform = { module = "org.junit.platform:junit-platform-launcher", version.ref = "jUnit-platform" }
+# JUnit: the versioned API dependency supplies the BOM for the remaining artifacts.
+jUnit-platform = { module = "org.junit.platform:junit-platform-launcher" }
 jUnit-jupiterApi = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jUnit-jupiter" }
-jUnit-parameters = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jUnit-jupiter" }
-jUnit-jupiterEngine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "jUnit-jupiter" }
+jUnit-parameters = { module = "org.junit.jupiter:junit-jupiter-params" }
+jUnit-jupiterEngine = { module = "org.junit.jupiter:junit-jupiter-engine" }
 jUnit-mockitoExt = { module = "org.mockito:mockito-junit-jupiter", version.ref = "jUnit-mockitoExt" }
 
 # Test tools
@@ -112,10 +110,6 @@ datadogSdkRum = { module = "com.datadoghq:dd-sdk-android-rum", version.ref = "da
 datadogSdkCompose = { module = "com.datadoghq:dd-sdk-android-compose", version.ref = "datadogSdk" }
 datadogPluginGradle = { module = "com.datadoghq:dd-sdk-android-gradle-plugin", version.ref = "datadogPluginGradle" }
 
-# Datadog Snapshot
-datadogSdkRumSnapshot = { module = "com.datadoghq:dd-sdk-android-rum", version.ref = "datadogSdkSnapshot" }
-datadogSdkComposeSnapshot = { module = "com.datadoghq:dd-sdk-android-compose", version.ref = "datadogSdkSnapshot" }
-
 # Kotlin Compiler Plugin
 kotlinCompilerEmbeddable20 = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin20" }
 kotlinCompilerEmbeddable21 = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin21" }
@@ -129,9 +123,6 @@ kotlinReflect20 = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref 
 kotlinReflect21 = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin21" }
 kotlinReflect22 = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin22" }
 kotlinReflect24 = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin24" }
-
-autoService = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
-autoServiceAnnotation = { module = "com.google.auto.service:auto-service-annotations", version.ref = "autoService" }
 
 # Compose
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -151,7 +142,7 @@ androidx-compose-navigation = { module = "androidx.navigation:navigation-compose
 
 [bundles]
 
-jUnit5 = [
+jUnit = [
     "jUnit-platform",
     "jUnit-jupiterApi",
     "jUnit-jupiterEngine",

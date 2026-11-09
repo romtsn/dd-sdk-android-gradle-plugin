@@ -1810,7 +1810,8 @@ internal class DdAndroidGradlePluginFunctionalTest {
                 buildVersionConfig.kotlinVersion,
                 PluginUnderTestMetadataReading.readImplementationClasspath()
                     .joinToString(",") { it.absolutePath },
-                buildVersionConfig.jvmTarget
+                buildVersionConfig.jvmTarget,
+                checkNotNull(System.getProperty("dd.sdk.version"))
             )
         )
         buildVersionConfig.javaHome?.let {
@@ -1950,7 +1951,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
                     agpVersion = agpVersion
                     // some AndroidX dependencies in recent SDK versions require compileSdk >= 33, so downgrading
                     datadogSdkDependency = targetSdkVersion >= 33 ?
-                       "com.datadoghq:dd-sdk-android-rum:3.15.0" : "com.datadoghq:dd-sdk-android:1.15.0"
+                       "com.datadoghq:dd-sdk-android-rum:${"$"}datadogSdkVersion" : "com.datadoghq:dd-sdk-android:1.15.0"
                     jvmTarget = jvmTarget
                 }
                 repositories {
@@ -1975,8 +1976,12 @@ internal class DdAndroidGradlePluginFunctionalTest {
             include(":samples:app")
             include(":samples:lib-module")
         """
+
+        // The TestKit daemon is reused across tests and merges the dex files of all the variants in
+        // parallel. With a smaller heap R8 can run out of memory growing its dex output buffers, which
+        // fails the build with "DexArchiveMergerException: Error while merging dex archives".
         val GRADLE_PROPERTIES_FILE_CONTENT = """
-           org.gradle.jvmargs=-Xmx1280m
+           org.gradle.jvmargs=-Xmx2048m
            org.gradle.daemon.idletimeout=10000
            android.useAndroidX=true
            agpVersion=%s
@@ -1985,6 +1990,7 @@ internal class DdAndroidGradlePluginFunctionalTest {
            kotlinVersion=%s
            pluginClasspath=%s
            jvmTarget=%s
+           datadogSdkVersion=%s
            // use less memory, we are not interested in result, just in the build process
            android.enableR8.fullMode=false
         """.trimIndent()

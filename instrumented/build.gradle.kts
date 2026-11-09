@@ -9,10 +9,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.androidApplicationPlugin)
-    // Applied before Kotlin on purpose: ktlint-gradle registers Android source-set tasks twice
-    // when it is applied after the Kotlin plugin.
     id("ktlint")
-    kotlin("android")
     alias(libs.plugins.kotlinComposePlugin)
 
     // Analysis tools
@@ -90,21 +87,20 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.datadogSdkComposeSnapshot)
-    implementation(libs.datadogSdkRumSnapshot)
+    implementation(libs.datadogSdkCompose)
+    implementation(libs.datadogSdkRum)
     implementation(libs.androidx.compose.navigation)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.bundles.jUnit5)
-    androidTestImplementation(libs.bundles.testTools)
+    androidTestImplementation(libs.assertJ)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation(libs.androidx.compose.navigation)
-    androidTestImplementation(libs.datadogSdkRumSnapshot)
+    androidTestImplementation(libs.datadogSdkRum)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }

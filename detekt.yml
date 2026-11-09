@@ -443,8 +443,7 @@ potential-bugs:
   CastToNullableType:
     active: true
   Deprecation:
-    # TODO RUM-18963 Re-enable once deprecated API usages are addressed
-    active: false
+    active: true
   DontDowncastCollectionTypes:
     active: true
   DoubleMutabilityForCollection:
@@ -758,6 +757,13 @@ style:
     active: false
   UnnecessaryFilter:
     active: true
+  UnnecessaryFullyQualifiedName:
+    active: true
+    ignoredFullyQualifiedNames:
+      - 'com.android.build.gradle.AppExtension'
+      - 'com.android.build.gradle.api.ApplicationVariant'
+      - 'org.gradle.process.internal.ExecException'
+      - 'org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar'
   UnnecessaryInheritance:
     active: true
   UnnecessaryInnerClass:

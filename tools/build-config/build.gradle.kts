@@ -18,6 +18,8 @@ detekt {
 }
 
 tasks.withType<Detekt>().configureEach {
+    // Gradle scripts need DSL context that Detekt can't resolve; the root detektScripts task checks them.
+    exclude("**/*.kts")
     val buildDirectory = layout.buildDirectory
     exclude { it.file.startsWith(buildDirectory.get().asFile) }
     reports {
@@ -80,7 +82,7 @@ dependencies {
     compileOnly(libs.mavenPublishPlugin)
 
     // Tests
-    testImplementation(libs.bundles.jUnit5)
+    testImplementation(libs.bundles.jUnit)
     testImplementation(libs.bundles.testTools)
 }
 
